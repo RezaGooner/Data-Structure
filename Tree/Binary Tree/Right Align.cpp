@@ -156,6 +156,20 @@ int countNodesAtLevel(Node* node, int level) { // calculate number of nodes at e
     return countNodesAtLevel(node->right, level - 1) + countNodesAtLevel(node->left , level - 1) ;
 }
 
+bool isBalanced(Node* root) {
+    if (root == NULL) {
+	    return true ;
+    }
+    int rightChildHeight = calculateHeight(root->right);
+    int leftChildHeight = calculateHeight(root->left);
+  
+    if (abs(rightChildHeight - leftChildHeight ) <= 1 && isBalanced(root->right) && isBalanced(root->left)) {
+        return true ;
+    }
+  
+    return false ;
+}
+
 bool isPerfect(Node* root) { // check if the tree is perfect
     int height = calculateHeight(root) ;
 

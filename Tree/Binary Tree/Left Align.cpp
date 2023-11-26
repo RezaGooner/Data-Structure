@@ -165,6 +165,20 @@ int countNodesAtLevel(Node* node, int level) { // calculate number of nodes at e
     return leftCount + rightCount ;
 }
 
+bool isBalanced(Node* root) {
+    if (root == NULL) {
+	    return true ;
+    }
+    int leftChildHeight = calculateHeight(root->left);
+    int rightChildHeight = calculateHeight(root->right);
+  
+    if (abs(leftChildHeight - rightChildHeight) <= 1 && isBalanced(root->left) && isBalanced(root->right)) {
+        return true ;
+    }
+  
+    return false ;
+}
+
 bool isPerfect(Node* root) { // check if the tree is perfect
     int height = calculateHeight(root) ;
 
@@ -300,7 +314,9 @@ int main() {
     cout << "Is the tree perfect? " << (isPerfect(root) ? "Yes" : "No") << endl << endl ;
     
     cout << "Number of leaves : " << countLeaf(root) << endl ; 
-    cout << "Number of mid-nodes : " << countMidNode(root) ;
+    cout << "Number of mid-nodes : " << countMidNode(root) << endl << endl ;
+    
+    cout << "Is the tree balanced? " << (isBalanced(root) ? "Yes" : "No") ;
 
     return 0;
 }
