@@ -1,19 +1,21 @@
 #include <iostream>
 
-using namespace std ;
+using namespace std;
 
-struct Node{
-	int value ;
-	Node* right ;
-	Node* left ;
+struct Node {
+    int value = 0;
+    Node* right;
+    Node* left;
 };
 
-Node* create(int value){
-	Node* newNode = new Node{value} ;
-	return newNode ;
+Node* create(int value) {
+    Node* newNode = new Node{value};
+    newNode->left = NULL;
+    newNode->right = NULL;
+    return newNode;
 }
 
-void insert(Node* &root, Node* node) {
+void insert(Node*& root, Node* node) {
     if (root == NULL) {
         root = node;
         return;
@@ -36,36 +38,33 @@ void insert(Node* &root, Node* node) {
                 return;
             }
         } else {
-            cout << "Node exists!" ;
+            cout << "Node exists!";
             return;
         }
     }
 }
 
-Node* find(Node* root , int value){
-	Node* current = root ;
-	while ( (current -> left != NULL) || (current -> right != NULL) ) {
-		if ( value > (current -> value) ){
-			if (current -> right != NULL){
-				current = current -> right ;
-			}
-		} else if ( value < (current -> value) ){
-			if (current -> left != NULL){
-				current = current -> left ;
-			}
-		} else { // Node found
-			return current ;
-		}
-	}
-	
-	return NULL ;
+Node* find(Node* root, int value) {
+    Node* current = root;
+
+    while (current != NULL) {
+        if (value > current->value) {
+            current = current->right;
+        } else if (value < current->value) {
+            current = current->left;
+        } else { // Node found
+            return current;
+        }
+    }
+
+    return NULL;
 }
 
 Node* findParent(Node* root, int value) {
     Node* parent = NULL;
     Node* current = root;
-    
-    if (root->value == value){
+
+    if (root->value == value) {
         return NULL;
     }
 
@@ -86,46 +85,33 @@ Node* findParent(Node* root, int value) {
     return parent;
 }
 
-	
-	/*
-
-	algorithm for remove node :	
-	
-			(parent)
-		   /        \
-	  X(node)      (node)X
-	     ^            ^
-	    /             \
-	l-ch       		   r-ch
-
-	This algorithm helps to find the smallest element by scrolling the left links and also 
-	find the largest element by scrolling the right links by reducing the number of elements on each side.
-
-	*/
-
-
-int max(Node* root){
-	Node* current = root ;
-	int max ;
-	while (current != NULL){
-		max = current -> value ;
-		current = current -> right ;
-	}
-	return max ;
+Node* max(Node* node) {
+    if (node == nullptr) {
+        return nullptr; // ???? ???? ???? ???????? ??? ?????? ???? ?????
+    }
+    
+    Node* current = node;
+    while (current->right != nullptr) {
+        current = current->right;
+    }
+    
+    return current;
 }
 
-int min(Node* root){
-	Node* current = root ;
-	int min ;
-	while (current != NULL) {
-		min = current -> value ;
-		current = current -> left ; 
-	}
-	return min ;
+Node* min(Node* node) {
+    if (node == NULL) {
+		return nullptr; // ???? ???? ???? ???????? ??? ?????? ???? ?????
+    }
+    
+    Node* current = node;
+    while (current->left != nullptr) {
+        current = current->left;
+    }
+    
+    return current;
 }
 
-
-Node* getMin(Node* node) {
+int getMin(Node* node) {
     if (node == NULL) {
         return NULL;
     }
@@ -134,83 +120,164 @@ Node* getMin(Node* node) {
         node = node->left;
     }
 
-    return node ;
+    return node -> value;
 }
 
-void remove(Node* &root, int nodeValue) {
+/* The `searchKey` function iteratively traverses the tree and searches for the given key (`value`) in the subtree rooted at `root`. 
+In each iteration, it first assigns the parent to the current node (`root`), and then based on the comparison of the key with the value of the node, 
+it goes to the left or right subtree. If the key is less than the value of the node, it goes to the left subtree, otherwise, it goes to the right subtree. 
+The iterative process continues until the desired node is found or the current node (`root`) becomes `NULL` (if the key is not present in the tree).
+
+In addition to the search operation, the `searchKey` function receives the parent of the target node (`Node* parent`) and 
+assigns the parent to the current node (`root`) in each iteration. This allows easy access to the parent node, which is crucial for deletion operations. 
+Having direct access to the parent node enables necessary modifications and ensures that the deletion operation is performed correctly without unintended complications.
+
+When you want to remove a node, you need to have access to the node's parent, which is used for necessary changes related to the deleted node. 
+If you don't have direct access to the parent node, the deletion operation may not be performed correctly or may encounter errors. 
+The `searchKey` function ensures proper access to the parent node, guaranteeing the correctness of the deletion operation and preventing unintended complexities.
+
+By utilizing the `searchKey` function to find the parent of the target node during deletion, 
+you can ensure that the deletion operation works correctly and avoid unintended issues.
+
+*/
+void searchKey(Node*& root, int value, Node*& parent) {
+    while (root != NULL && root->value != value) {
+        parent = root;
+
+        if (value < root->value) {
+            root = root->left;
+        } else {
+            root = root->right;
+        }
+    }
+}
+
+void remove(Node* root, int value) {
+    Node* parent = NULL;
+    Node* current = root;
+
+    // search key in the BST and set its parent pointer
+    searchKey(current, value, parent);
+
+    // return if the key is not found in the tree
+    if (current == NULL) {
+        return;
+    }
+
+    // Case 1: node to be deleted has no children (it is a leaf node)
+    if (current->left == NULL && current->right == NULL) {
+        // if the node to be deleted is not a root node, then set its
+        // parent left/right child to NULL
+        if (current != root) {
+            if (parent->left == current) {
+                parent->left = NULL;
+            } else {
+                parent->right = NULL;
+            }
+        }
+        // if the tree has only a root node, delete it and set root to nullptr
+        else {
+            root = NULL;
+        }
+        delete current;
+    }
+
+    // Case 2: node to be deleted has two children
+    else if (current->left && current->right) {
+        // find its in-order predecessor node
+        Node* predecessor = min(current->right);
+
+        // store the value of the predecessor in the current node
+        int predecessorValue = predecessor->value;
+
+        // recursively delete the predecessor. Note that the predecessor
+        // will have at most one child (right child)
+        remove(root, predecessor->value);
+
+        // copy the value of the predecessor to the current node
+        current->value = predecessorValue;
+    }
+
+    // Case 3: node to be deleted has only one child
+    else {
+        // choose a child node
+        Node* child = (current->left) ? current->left : current->right;
+
+        // if the node to be deleted is not a root node, then set its parent
+        // to its child
+        if (current != root) {
+            if (current == parent->left) {
+                parent->left = child;
+            } else {
+                parent->right = child;
+            }
+        }
+        // if the node to be deleted is a root node, then set the root to the child
+        else {
+            root = child;
+        }
+        delete current;  // deallocate the memory
+    }
+}
+
+void inOrder(Node* root) {
     if (root == NULL) {
         return;
     }
-  
-    Node* node = find(root, nodeValue);
-    Node* parent = findParent(root, nodeValue);
+    inOrder(root->left);
+    cout << root->value << " ";
+    inOrder(root->right);
+}
 
-    if (parent == NULL) {
-        // node is root
-        if (node->left == NULL && node->right == NULL) {
-            // nood is leaf
-            delete root;
-            root = NULL;
-        } else if (node->left != NULL) {
-            // node has left-child only
-            Node* temp = root;
-            root = root->left;
-            delete temp;
-        } else if (node->right != NULL) {
-            // node has right-child only
-            Node* temp = root;
-            root = root->right;
-            delete temp;
-        }
+int successor(Node* root, int value) {
+    Node* node = find(root, value);
+
+    if (node == NULL) {
+        return -1; // Node with the given value does not exist
+    }
+
+    if (node->right != NULL) {
+        return min(node->right)->value;
     } else {
-        // nood isn't root
-        if (parent->left == node) {
-            if (node->left == NULL && node->right == NULL) {
-                parent->left = NULL;
-                delete node;
-            } else if (node->left != NULL && node->right == NULL) {
-                parent->left = node->left;
-                delete node;
-            } else if (node->left == NULL && node->right != NULL) {
-                parent->left = node->right;
-                delete node;
-            } else {
-				Node* successor = getMin(node->right);
-                Node* successorParent = findParent(root, successor->value);
+        Node* parent = findParent(root, node->value);
+        if (parent == NULL) {
+            return -1; // Node is the root, no successor exists
+        }
 
-                if (successorParent != node) {
-                    successorParent->left = successor->right;
-                    successor->right = node->right;
-                }
+        while (parent != NULL && node == parent->right) {
+            node = parent;
+            parent = findParent(root, node->value);
+        }
 
-                successor->left = node->left;
-                parent->left = successor;
-                delete node;
-            }
-        } else if (parent->right == node) {
-            if (node->left == NULL && node->right == NULL) {
-                parent->right = NULL;
-                delete node;
-            } else if (node->left != NULL && node->right == NULL) {
-                parent->right = node->left;
-                delete node;
-            } else if (node->left == NULL && node->right != NULL) {
-                parent->right = node->right;
-                delete node;
-            } else {
-				Node* successor = getMin(node->right);
-                Node* successorParent = findParent(root, successor->value);
+        if (parent == NULL) {
+            return -1; // Node is the rightmost leaf, no successor exists
+        }
+        return parent->value;
+    }
+}
 
-                if (successorParent != node) {
-                    successorParent->left = successor->right;
-                    successor->right = node->right;
-                }
+int predecessor(Node* root, int value) {
+    Node* node = find(root, value);
 
-                successor->left = node->left;
-                parent->right = successor;
-                delete node;
+    if (node == NULL) {
+        return -1; // Node with the given value does not exist
+    }
+
+    if (node->left != NULL) {
+        return max(node->left) -> value;
+    } else {
+        Node* parent = findParent(root, node->value);
+        if (parent == NULL) {
+			return -1; // No predecessor exists
+        }
+        while (node != parent->right) {
+            node = parent;
+            parent = findParent(root, node->value);
+            if (parent == NULL) {
+                return -1; // No predecessor exists
             }
         }
+        return parent->value;
     }
 }
 
@@ -230,73 +297,48 @@ bool isBST(Node* root) {
     return isBST(root->left) && isBST(root->right) ;
 }
 
-void inOrder(Node* root){
-	if (root == NULL){
-		return ;
-	}
-	inOrder(root -> left) ;
-	cout << root -> value << " " ;
-	inOrder(root -> right) ;
-}
 
+int main() {
+    Node* root = NULL;
+    insert(root, create(20));
+    insert(root, create(10));
+    insert(root, create(30));
+    insert(root, create(5));
+    insert(root, create(15));
+    insert(root, create(25));
+    insert(root, create(35));
+    insert(root, create(22));
+    insert(root, create(27));
 
-int successor(Node* root , int value){
-	Node* node = find(root , value) ;
-	if ( (node -> right) != NULL ) {
-		return min(node -> right) ;
-	} else {
-		while (node != findParent(root , node -> value) -> left ){
-			node = findParent(root , node -> value) ;
-		}
-		return findParent(root , node -> value) -> value ;
-	}
-}
+    cout << "inOrder traversal : ";
+    inOrder(root);
+    cout << endl;
 
-int predecessor(Node* root , int value){
-	Node* node = find(root , value) ;
-	if (node -> left != NULL) {
-		return max(node -> left) ;
-	} else {
-		while (node != findParent(root , node -> value) -> right ) {
-			node = findParent(root , node -> value ) ;
-		}
-		return findParent(root , node -> value) -> value ;
-	}
-}
-
-int main(){
+    remove(root, 30);
+    cout << "inOrder traversal after remove node<30> : ";
+    inOrder(root);
+	cout << endl << successor(root , 10) << endl << predecessor(root , 10) << endl << (isBST(root) ? "Yes" : "No") << endl << endl ;
 	
-	Node* root = new Node{20} ;
-	Node* node1 = new Node{10} ;
-	Node* node2 = new Node{30} ;
-	Node* node3 = new Node{5} ;
-	Node* node4 = new Node{15} ;
-	Node* node5 = new Node{25} ;
-	Node* node6 = new Node{35} ;
 	
-	root -> right = node2 ;
-	root -> left  = node1 ;
-	
-	node1 -> left  = node3 ; 
-	node1 -> right = node4 ;
-
-	insert(root ,  node5 ) ;
-	insert(root ,  node6 ) ;
-	
-
 	inOrder(root) ;
 	cout << endl ;
 	remove(root , 10);
 	inOrder(root);
 	cout << endl ;
-	remove(root , 30);
+	remove(root , 27);
 	inOrder(root);
 	cout << endl ;
-	remove(root , 35);
+	remove(root , 22);
 	inOrder(root);
 	
-	cout << endl << "Max : " << max(root) << " , Min : " << min(root) ;	
-	return 0 ;
+	
+	cout << endl << "----------------" << endl;
+	cout << endl << "Max : " << max(root) -> value << " , Min : " << min(root) -> value	 ;	
+	cout << endl << find(root , 5) -> value << endl ;
+	cout << min(root) -> value ;
+	cout << endl << endl << successor(root , 5) << endl << predecessor(root , 10) ;
+
+    return 0;
 }
 
 /*
