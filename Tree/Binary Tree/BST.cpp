@@ -123,21 +123,23 @@ int getMin(Node* node) {
     return node -> value;
 }
 
-/* The `searchKey` function iteratively traverses the tree and searches for the given key (`value`) in the subtree rooted at `root`. 
-In each iteration, it first assigns the parent to the current node (`root`), and then based on the comparison of the key with the value of the node, 
-it goes to the left or right subtree. If the key is less than the value of the node, it goes to the left subtree, otherwise, it goes to the right subtree. 
-The iterative process continues until the desired node is found or the current node (`root`) becomes `NULL` (if the key is not present in the tree).
+/* 
 
-In addition to the search operation, the `searchKey` function receives the parent of the target node (`Node* parent`) and 
-assigns the parent to the current node (`root`) in each iteration. This allows easy access to the parent node, which is crucial for deletion operations. 
-Having direct access to the parent node enables necessary modifications and ensures that the deletion operation is performed correctly without unintended complications.
-
-When you want to remove a node, you need to have access to the node's parent, which is used for necessary changes related to the deleted node. 
-If you don't have direct access to the parent node, the deletion operation may not be performed correctly or may encounter errors. 
-The `searchKey` function ensures proper access to the parent node, guaranteeing the correctness of the deletion operation and preventing unintended complexities.
-
-By utilizing the `searchKey` function to find the parent of the target node during deletion, 
-you can ensure that the deletion operation works correctly and avoid unintended issues.
+	The `searchKey` function iteratively traverses the tree and searches for the given key (`value`) in the subtree rooted at `root`. 
+	In each iteration, it first assigns the parent to the current node (`root`), and then based on the comparison of the key with the value of the node, 
+	it goes to the left or right subtree. If the key is less than the value of the node, it goes to the left subtree, otherwise, it goes to the right subtree. 
+	The iterative process continues until the desired node is found or the current node (`root`) becomes `NULL` (if the key is not present in the tree).
+	
+	In addition to the search operation, the `searchKey` function receives the parent of the target node (`Node* parent`) and 
+	assigns the parent to the current node (`root`) in each iteration. This allows easy access to the parent node, which is crucial for deletion operations. 
+	Having direct access to the parent node enables necessary modifications and ensures that the deletion operation is performed correctly without unintended complications.
+	
+	When you want to remove a node, you need to have access to the node's parent, which is used for necessary changes related to the deleted node. 
+	If you don't have direct access to the parent node, the deletion operation may not be performed correctly or may encounter errors. 
+	The `searchKey` function ensures proper access to the parent node, guaranteeing the correctness of the deletion operation and preventing unintended complexities.
+	
+	By utilizing the `searchKey` function to find the parent of the target node during deletion, 
+	you can ensure that the deletion operation works correctly and avoid unintended issues.
 
 */
 void searchKey(Node*& root, int value, Node*& parent) {
